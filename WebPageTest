@@ -1,0 +1,143 @@
+package n11Test;
+
+import java.util.List;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.ClickAction;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import com.gargoylesoftware.htmlunit.StorageHolder.Type;
+
+
+public class WebPageTest {
+
+	static WebDriver driver;
+	
+    @Before
+    public void testSetUp(){
+    	
+    	 System.setProperty("webdriver.gecko.driver", "C:\\Users\\dbadg\\eclipse\\java-oxygen\\eklenti\\geckodriver.exe");  		//gecko ile firefox kullanımı sağlandı
+    	 driver = new FirefoxDriver();  										 //driver nesnesi oluşturuldu
+    	 	 
+    }
+
+    @Test
+    public void testFireFoxSelenium() {
+    	
+    	 WebDriverWait wait = new WebDriverWait(driver, 40);  //Sayfaların açılma süresi içim
+    	
+    	 //n11.com sayfasına giriş 
+    	 driver.navigate().to("https://www.n11.com/");
+    	 
+    	 //n11.com sayfasının açıldığının onaylanması
+    	 Assert.assertTrue(driver.getTitle().contains("n11.com - Alışverişin Uğurlu Adresi"));
+    	 System.out.println(driver.getCurrentUrl() + "\t" +  "Giriş Yapıldı");
+    	 
+    	 //Giriş Yap linkine tıklama
+         driver.findElement(By.linkText("Giriş Yap")).click();
+         
+         //Giriş sayfasının açıldığının onaylanması
+         Assert.assertTrue(driver.getTitle().contains("Giriş Yap - n11.com"));
+         System.out.println(driver.getCurrentUrl() + "\t" +  "Giriş Yapıldı");
+         
+         //Uye Girisi
+         Type(By.id("email"),"isayakupaksoy@msn.com");
+         Type(By.id("password"),"123456a");
+         click(By.id("loginButton"));
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/header/div/div/div[2]/div[2]/div[1]/div[1]/a[1]")));  //Giriş Yap Butonuna tıklandıktan sonra yeni sayfanın açılmasının beklenilmesi için wait
+         
+         //Login olunduğunun onaylanması
+         Assert.assertTrue(driver.getPageSource().contains("Hesabım"));
+         System.out.println(driver.getCurrentUrl() + "\t" +  "Login");
+         
+         //Samsung Search
+         Type(By.id("searchData"),"samsung");
+         click(By.className("searchBtn"));
+         Assert.assertTrue(driver.getPageSource().contains("sonuç bulundu."));   //Samsung için sonuç var mı? Varsa program çalışmaya devam edecek.
+         System.out.println("Samsung için Sonuç Bulundu");
+         
+         //2. sayfaya geçiş
+         click(By.linkText("2"));
+         Assert.assertTrue(driver.getCurrentUrl().contains("https://www.n11.com/arama?q=samsung&pg=2"));   //2. sayfa şuan gösterimde mi? Gösterimdeyse program çalışmaya devam edecek.
+         System.out.println("2. Sayfa Gösterimde");
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/div/div/div[2]/section/div[2]/ul/li[3]/div/div[1]/a/h3")));  //2. sayfa tıklandıktan sonra üstten 3. sıradaki ürün baz alınarak yeni sayfanın açılmasının beklenilmesi için wait
+        
+         //2. sayfa üstten 3. ürüne giriş
+         click(By.xpath("/html/body/div[1]/div/div/div/div[2]/section/div[2]/ul/li[3]/div/div[1]/a/h3"));
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/div/div[3]/div[2]/div[3]/div[3]/a[2]"))); //Ürüne tıklandıktan sonra Sepete Ekle butonu baz alınarak yeni sayfanın açılmasının beklenilmesi için wait
+         String a=driver.getCurrentUrl();    //Ürünün Url'si a değişkenine atandı
+         
+         //Sepete Ekle
+         click(By.xpath("/html/body/div[1]/div/div/div[3]/div[2]/div[3]/div[3]/a[2]"));
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/header/div/div/div[2]/div[2]/div[3]/div/a"))); //Sepete Ekle Butonuna tıklandıktan sonra Sepete Git Kutucuğunun açılmasını beklenilmesi için wait
+         Assert.assertTrue(driver.getPageSource().contains("Sepete Git")); //Sepete Git Kutucuğu baz alınarak Sepete Ekleme işleminin gerçekleştiğinin onaylanması.
+         System.out.println("Sepete Eklendi");
+         
+         //Sepetim Sayfasına geçiş
+         click(By.xpath("/html/body/div[1]/header/div/div/div[2]/div[2]/div[3]/div/a"));
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/div/div[1]/div[2]/div[1]/section/table[2]/tbody/tr/td[1]/div[3]/div[2]/span[2]")));  //Sepetim sayfasını, favorilere ekle baz alınarak açılmasının beklenilmesi için wait
+         Assert.assertTrue(driver.getCurrentUrl().contains("https://www.n11.com/sepetim")); //Sepetim sayfasının orjinal linki, açılan sayfanın linkiyle aynı mı? Aynı ise program çalışmaya devam edecek.
+         System.out.println("Sepetim Sayfası Açıldı");
+        
+         //Ürün Favorilere eklenecek
+         click(By.xpath("/html/body/div[1]/div/div/div[1]/div[2]/div[1]/section/table[2]/tbody/tr/td[1]/div[3]/div[2]/span[2]"));
+         
+         //Anasayfaya Alışverişe Devam Et linki üzerinden geçiş
+         click(By.id("continueToShopping"));
+         
+         //Hesabım Ekranına geçiş
+         click(By.className("myAccount"));
+         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/div/div[2]/div[1]/div[2]/ul/li[6]/a"))); //İstek Listelerim butonu baz alınarak Hesabım Ekranının açılmasının beklenilmesi için wait
+         Assert.assertTrue(driver.getCurrentUrl().contains("https://www.n11.com/hesabim/siparislerim")); //Hesabım sayfasının orjinal linki, açılan sayfanın linkiyle aynı mı? Aynı ise program çalışmaya devam edecek.
+         System.out.println("Hesabım Ekranı Açıldı");
+         
+         
+         //İstek Listelerim Sayfasına Geçiş
+         click(By.xpath("/html/body/div[1]/div/div/div[2]/div[1]/div[2]/ul/li[6]/a"));
+  
+         //Favorim Sayfasına Geçiş
+         click(By.className("listItemTitle"));
+         System.out.println("Favorilerim Sayfası Açıldı");
+         Assert.assertTrue(driver.getPageSource().contains(a)); //Favorilere eklenen ürün ile şuan favorilerimde bulunan ürün aynı mı? Aynı ise program çalışmaya devam edecek.
+         System.out.println("Ürün Favorilerde");
+         
+         //Favorilere Eklenen ürünün Favorilerimden çıkarılması
+         click(By.className("deleteProFromFavorites"));
+         Assert.assertTrue(driver.getPageSource().contains("Tamam")); //Favorilerden çıkarılan ürün için "message" pencere açıldı mı? Açıldıysa program çalışmaya devam edecek.
+         click(By.className("btnHolder"));
+      	 System.out.println("Ürün Favorilerde Artık Yok"); 
+    }	
+
+    private void click(By id) {
+		// TODO Auto-generated method stub
+    	driver.findElement(id).click();
+	}
+
+	private void Type(By id, String string) {
+		// TODO Auto-generated method stub
+    	driver.findElement(id).sendKeys(string);
+		
+	}
+	
+
+
+	@After
+    public void testShutSown(){
+    	 
+           // driver.close();
+           
+        }
+    }
+
+
+
